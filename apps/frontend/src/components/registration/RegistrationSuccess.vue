@@ -8,15 +8,6 @@
       </svg>
     </div>
 
-    <!-- Manila FAME Logo -->
-    <div class="mb-6">
-      <div class="flex items-center justify-center">
-        <div class="w-12 h-12 bg-amber-600 rounded flex items-center justify-center text-white font-bold text-lg">
-          MF
-        </div>
-      </div>
-    </div>
-
     <!-- Success Message -->
     <div class="mb-8">
       <h1 class="text-3xl mb-4 font-semibold">Registration Successful!</h1>
@@ -118,10 +109,14 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useRegistrationStore } from '@/stores/registration'
 
 const router = useRouter()
+const store = useRegistrationStore()
 
 const handleReturnHome = () => {
+  // Reset the registration state before navigating home
+  store.resetRegistration()
   router.push('/')
 }
 

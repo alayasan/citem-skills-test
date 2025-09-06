@@ -53,10 +53,14 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useRegistrationStore } from '@/stores/registration'
 
 const router = useRouter()
+const store = useRegistrationStore()
 
 const navigateToRegister = () => {
+  // Reset registration state before navigating to ensure fresh start
+  store.resetRegistration()
   router.push('/register')
 }
 </script>

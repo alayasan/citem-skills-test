@@ -104,6 +104,10 @@ const resetRegistration = () => {
 
 // Lifecycle
 onMounted(() => {
+  // Reset registration if user navigates to registration page while in submitted state
+  if (store.isSubmitted) {
+    store.resetRegistration()
+  }
   store.fetchCountries()
 })
 </script>
