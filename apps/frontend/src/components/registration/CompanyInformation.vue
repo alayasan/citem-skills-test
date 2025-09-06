@@ -144,11 +144,15 @@
           required
           min="1800"
           :max="new Date().getFullYear()"
+          step="1"
+          maxlength="4"
           placeholder="e.g. 2010"
           class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           :class="{ 'border-red-500': errors.yearEstablished }"
+          @input="validateYearInput"
         />
         <p v-if="errors.yearEstablished" class="text-red-500 text-sm mt-1">{{ errors.yearEstablished }}</p>
+        <p class="text-gray-500 text-xs mt-1">Enter a 4-digit year (e.g., 2010). Cannot be in the future.</p>
       </div>
 
       <!-- Website (optional) -->
@@ -175,7 +179,13 @@
         <div class="mt-2">
           <div v-if="!selectedFile" 
                @click="fileInput?.click()"
-               class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 transition-colors">
+               @dragover.prevent
+               @dragenter.prevent
+               @drop.prevent="handleFileDrop"
+               class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 transition-colors"
+               :class="{ 'border-blue-400 bg-blue-50': isDragOver }"
+               @dragenter="isDragOver = true"
+               @dragleave="isDragOver = false">
             <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7,10 12,15 17,10"/>
@@ -222,6 +232,8 @@
           @change="handleFileChange"
           class="hidden"
         />
+        <p v-if="errors.companyBrochure" class="text-red-500 text-sm mt-1">{{ errors.companyBrochure }}</p>
+        <p class="text-gray-500 text-xs mt-1">Optional: Upload a company brochure (PDF, DOC, DOCX, max 2MB)</p>
       </div>
 
       <!-- Navigation Buttons -->
@@ -273,6 +285,7 @@ const loading = computed(() => store.loading)
 const errors = ref<Record<string, string>>({})
 const fileInput = ref<HTMLInputElement>()
 const selectedFile = ref<File | null>(registrationData.value.companyBrochure)
+const isDragOver = ref(false)
 
 // Watch for file changes in store
 watch(() => registrationData.value.companyBrochure, (newFile) => {
@@ -314,6 +327,47 @@ const onStateChange = () => {
   }
 }
 
+const validateYearInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const value = target.value
+  
+  // Remove any non-digit characters and limit to 4 digits
+  const numericValue = value.replace(/\D/g, '').slice(0, 4)
+  
+  // Update the input value to only contain the cleaned numeric value
+  target.value = numericValue
+  
+  // Update the model value
+  if (numericValue) {
+    registrationData.value.yearEstablished = parseInt(numericValue, 10)
+  } else {
+    registrationData.value.yearEstablished = ''
+  }
+}
+
+const validateFileUpload = (file: File): string | null => {
+  // Validate file type by MIME type and extension
+  const allowedMimeTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ]
+  
+  const allowedExtensions = ['.pdf', '.doc', '.docx']
+  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
+  
+  if (!allowedMimeTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+    return 'Please select a PDF, DOC, or DOCX file'
+  }
+  
+  // Validate file size (2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    return 'File size must be less than 2MB'
+  }
+  
+  return null
+}
+
 const validateForm = () => {
   errors.value = {}
 
@@ -339,8 +393,18 @@ const validateForm = () => {
 
   if (!registrationData.value.yearEstablished) {
     errors.value.yearEstablished = 'Year established is required'
-  } else if (registrationData.value.yearEstablished < 1800 || registrationData.value.yearEstablished > new Date().getFullYear()) {
-    errors.value.yearEstablished = 'Please enter a valid year'
+  } else {
+    const year = registrationData.value.yearEstablished
+    const currentYear = new Date().getFullYear()
+    
+    // Check if it's a 4-digit number
+    if (!/^\d{4}$/.test(year.toString())) {
+      errors.value.yearEstablished = 'Year must be exactly 4 digits'
+    } else if (year < 1800) {
+      errors.value.yearEstablished = 'Year must be 1800 or later'
+    } else if (year > currentYear) {
+      errors.value.yearEstablished = 'Year cannot be in the future'
+    }
   }
 
   if (registrationData.value.website && !/^https?:\/\/.+/.test(registrationData.value.website)) {
@@ -355,17 +419,9 @@ const handleFileChange = (event: Event) => {
   const file = target.files?.[0]
   
   if (file) {
-    // Validate file type
-    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-    if (!allowedTypes.includes(file.type)) {
-      errors.value.companyBrochure = 'Please select a PDF, DOC, or DOCX file'
-      target.value = ''
-      return
-    }
-    
-    // Validate file size (2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      errors.value.companyBrochure = 'File size must be less than 2MB'
+    const validationError = validateFileUpload(file)
+    if (validationError) {
+      errors.value.companyBrochure = validationError
       target.value = ''
       return
     }
@@ -381,6 +437,24 @@ const removeFile = () => {
   store.updateCompanyData({ companyBrochure: null })
   if (fileInput.value) {
     fileInput.value.value = ''
+  }
+}
+
+const handleFileDrop = (event: DragEvent) => {
+  isDragOver.value = false
+  const files = event.dataTransfer?.files
+  if (files && files.length > 0) {
+    const file = files[0]
+    
+    const validationError = validateFileUpload(file)
+    if (validationError) {
+      errors.value.companyBrochure = validationError
+      return
+    }
+    
+    selectedFile.value = file
+    store.updateCompanyData({ companyBrochure: file })
+    delete errors.value.companyBrochure
   }
 }
 

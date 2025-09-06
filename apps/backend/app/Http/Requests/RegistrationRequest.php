@@ -38,7 +38,7 @@ class RegistrationRequest extends FormRequest
       'town_city' => 'required|string|max:255',
       'region_state' => 'required|string|max:255',
       'country' => 'required|string|max:255',
-      'year_established' => 'required|integer|min:1800|max:' . date('Y'),
+      'year_established' => 'required|integer|digits:4|min:1800|max:' . date('Y'),
       'website' => 'nullable|url|max:255',
       'brochure' => 'nullable|file|mimes:pdf,doc,docx|max:2048', // 2MB max
     ];
@@ -58,6 +58,7 @@ class RegistrationRequest extends FormRequest
       'password.min' => 'Password must be at least 8 characters long.',
       'password.confirmed' => 'Password confirmation does not match.',
       'participation_type.in' => 'Please select a valid participation type.',
+      'year_established.digits' => 'Year established must be exactly 4 digits.',
       'year_established.min' => 'Year established must be 1800 or later.',
       'year_established.max' => 'Year established cannot be in the future.',
       'brochure.mimes' => 'Brochure must be a PDF, DOC, or DOCX file.',

@@ -1,33 +1,29 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div class="container mx-auto px-4 py-8">
-      <div class="max-w-2xl mx-auto">
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm text-center">
-          <div class="pt-12 pb-8 px-6">
-            <!-- Success Icon -->
-            <div class="mb-6">
-              <svg class="mx-auto h-20 w-20 text-green-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22,4 12,14.01 9,11.01"/>
-              </svg>
-            </div>
+  <div class="text-center p-6">
+    <!-- Success Icon -->
+    <div class="mb-6">
+      <svg class="mx-auto h-20 w-20 text-green-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22,4 12,14.01 9,11.01"/>
+      </svg>
+    </div>
 
-            <!-- Manila FAME Logo -->
-            <div class="mb-6">
-              <div class="flex items-center justify-center">
-                <div class="w-12 h-12 bg-amber-600 rounded flex items-center justify-center text-white font-bold text-lg">
-                  MF
-                </div>
-              </div>
-            </div>
+    <!-- Manila FAME Logo -->
+    <div class="mb-6">
+      <div class="flex items-center justify-center">
+        <div class="w-12 h-12 bg-amber-600 rounded flex items-center justify-center text-white font-bold text-lg">
+          MF
+        </div>
+      </div>
+    </div>
 
-            <!-- Success Message -->
-            <div class="mb-8">
-              <h1 class="text-3xl mb-4 font-semibold">Registration Successful!</h1>
-              <p class="text-gray-600 text-lg">
-                Thank you for registering for Manila FAME 2025. Your registration has been submitted successfully.
-              </p>
-            </div>
+    <!-- Success Message -->
+    <div class="mb-8">
+      <h1 class="text-3xl mb-4 font-semibold">Registration Successful!</h1>
+      <p class="text-gray-600 text-lg">
+        Thank you for registering for Manila FAME 2025. Your registration has been submitted successfully.
+      </p>
+    </div>
 
             <!-- Registration Details -->
             <div class="bg-gray-50 rounded-lg p-6 mb-8 text-left">
@@ -117,10 +113,6 @@
                 </a>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

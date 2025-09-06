@@ -126,7 +126,6 @@ class RegistrationController extends Controller
                     return response()->json([
                         'success' => true,
                         'data' => $stateData['data'],
-                        'source' => 'Countries Now API - State Cities'
                     ]);
                 }
             }

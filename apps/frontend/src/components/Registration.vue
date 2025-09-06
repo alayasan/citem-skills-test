@@ -17,8 +17,9 @@
             </div>
           </div>
           <div class="text-right">
-            <div class="text-sm text-gray-500 font-medium">Step {{ currentStep }} of 3</div>
-            <div class="w-48 mt-2">
+            <div v-if="!isSubmitted" class="text-sm text-gray-500 font-medium">Step {{ currentStep }} of 3</div>
+            <div v-else class="text-sm text-green-600 font-medium">Registration Complete!</div>
+            <div v-if="!isSubmitted" class="w-48 mt-2">
               <div class="progress-bar">
                 <div 
                   class="progress-fill"
@@ -48,21 +49,21 @@
             @prev="prevStep"
           />
           
-          <!-- Step 3: Registration Summary -->
+          <!-- Step 3: Registration Summary (only show if not submitted) -->
           <RegistrationSummary
-            v-if="currentStep === 3"
+            v-if="currentStep === 3 && !isSubmitted"
             @prev="prevStep"
             @submit="handleSubmit"
+          />
+
+          <!-- Confirmation Page (replaces Step 3 after successful submission) -->
+          <RegistrationSuccess 
+            v-if="isSubmitted"
+            @close="resetRegistration"
           />
         </div>
       </div>
     </div>
-
-    <!-- Success Modal -->
-    <RegistrationSuccess 
-      v-if="isSubmitted"
-      @close="resetRegistration"
-    />
   </div>
 </template>
 
