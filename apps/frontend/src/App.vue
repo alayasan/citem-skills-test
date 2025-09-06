@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 import HeroSection from './components/HeroSection.vue'
+import WhyVisitSection from './components/WhyVisitSection.vue'
 
 const apiData = ref<any>(null)
 const loading = ref(false)
@@ -33,19 +34,11 @@ onMounted(() => {
     <!-- Hero Section -->
     <HeroSection />
     
+    <!-- Why Visit Section -->
+    <WhyVisitSection />
+    
     <!-- Development/Testing Section -->
     <div class="dev-section">
-      <div class="dev-logos">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" class="logo" alt="Vite logo" />
-        </a>
-        <a href="https://vuejs.org/" target="_blank">
-          <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-        </a>
-      </div>
-      
-      <HelloWorld msg="Vite + Vue + Laravel" />
-      
       <div class="api-section">
         <h2>Laravel API Connection</h2>
         <button @click="fetchApiData" :disabled="loading">
