@@ -20,9 +20,9 @@ citem-skills-test/
 ## Tech Stack
 
 - **Monorepo**: Turborepo with pnpm workspaces
-- **Frontend**: Vue.js 3 + TypeScript + Vite
+- **Frontend**: Vue.js 3 + TypeScript + Vite + Sass
 - **Backend**: Laravel 12 + PHP 8.4
-- **Database**: SQLite (development-ready)
+- **Database**: MySQL 8.0+
 - **Package Manager**: pnpm
 
 ## Quick Start
@@ -33,6 +33,28 @@ citem-skills-test/
 - PHP 8.4+
 - Composer
 - pnpm (`npm install -g pnpm`)
+- **MySQL 8.0+** (required)
+
+### MySQL Setup
+
+1. Install MySQL 8.0+ on your system
+2. Create a database:
+```sql
+CREATE DATABASE citem_skills_test;
+CREATE USER 'laravel_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON citem_skills_test.* TO 'laravel_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+3. Update the Laravel `.env` file with your MySQL credentials:
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=citem_skills_test
+DB_USERNAME=laravel_user
+DB_PASSWORD=your_password
+```
 
 ### Installation
 
@@ -45,6 +67,7 @@ pnpm install
 ```bash
 cd apps/backend
 cp .env.example .env
+# Update .env with your MySQL credentials (see MySQL Setup above)
 php artisan key:generate
 php artisan migrate
 ```
@@ -80,16 +103,18 @@ The frontend automatically connects to this endpoint to test the full-stack setu
 ## Project Features
 
 - ✅ Turborepo monorepo setup
-- ✅ Vue.js 3 + TypeScript frontend
+- ✅ Vue.js 3 + TypeScript frontend with Vite
+- ✅ **Sass/SCSS styling** with variables and mixins
 - ✅ Laravel 12 backend with API routes
-- ✅ SQLite database (no setup required)
+- ✅ **MySQL database** with proper configuration
 - ✅ CORS configured for local development
 - ✅ Full-stack API connection example
 - ✅ Hot reload for both frontend and backend
 
 ## Development Notes
 
-- SQLite database file is located at `apps/backend/database/database.sqlite`
+- **MySQL database** connection configured in `apps/backend/.env`
+- **Sass styles** located in `apps/frontend/src/assets/styles/main.scss`
 - CORS is configured to allow requests from `http://localhost:5173`
 - API routes are prefixed with `/api/`
 - Frontend dev server runs on port 5173

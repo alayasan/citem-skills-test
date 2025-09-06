@@ -59,10 +59,10 @@ apps/frontend/dist/
 apps/frontend/.temp/
 apps/frontend/.cache/
 
-# Database
-*.sqlite
-*.sqlite3
-apps/backend/database/*.sqlite*
+# MySQL dumps and logs
+*.sql
+*.sql.gz
+mysql-slow.log
 
 # Package manager
 .pnpm-store/
