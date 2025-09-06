@@ -13,7 +13,7 @@
         </label>
         <input
           id="companyName"
-          v-model="formData.companyName"
+          v-model="registrationData.companyName"
           type="text"
           required
           class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -29,46 +29,13 @@
         </label>
         <input
           id="addressLine"
-          v-model="formData.addressLine"
+          v-model="registrationData.addressLine"
           type="text"
           required
           class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           :class="{ 'border-red-500': errors.addressLine }"
         />
         <p v-if="errors.addressLine" class="text-red-500 text-sm mt-1">{{ errors.addressLine }}</p>
-      </div>
-
-      <!-- Town/City and Region/State -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label for="townCity" class="block text-sm font-medium text-gray-900 mb-1">
-            Town/City *
-          </label>
-          <input
-            id="townCity"
-            v-model="formData.townCity"
-            type="text"
-            required
-            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            :class="{ 'border-red-500': errors.townCity }"
-          />
-          <p v-if="errors.townCity" class="text-red-500 text-sm mt-1">{{ errors.townCity }}</p>
-        </div>
-
-        <div>
-          <label for="regionState" class="block text-sm font-medium text-gray-900 mb-1">
-            Region/State *
-          </label>
-          <input
-            id="regionState"
-            v-model="formData.regionState"
-            type="text"
-            required
-            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            :class="{ 'border-red-500': errors.regionState }"
-          />
-          <p v-if="errors.regionState" class="text-red-500 text-sm mt-1">{{ errors.regionState }}</p>
-        </div>
       </div>
 
       <!-- Country -->
@@ -78,17 +45,91 @@
         </label>
         <select
           id="country"
-          v-model="formData.country"
+          v-model="registrationData.country"
           required
-          class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           :class="{ 'border-red-500': errors.country }"
+          @change="onCountryChange"
         >
           <option value="">Select a country</option>
-          <option v-for="country in countries" :key="country.name" :value="country.name">
+          <option
+            v-for="country in countries"
+            :key="country.name"
+            :value="country.name"
+          >
             {{ country.name }}
           </option>
         </select>
         <p v-if="errors.country" class="text-red-500 text-sm mt-1">{{ errors.country }}</p>
+      </div>
+
+      <!-- Town/City and Region/State -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="regionState" class="block text-sm font-medium text-gray-900 mb-1">
+            Region/State *
+          </label>
+          <div class="relative">
+            <select
+              id="regionState"
+              v-model="registrationData.regionState"
+              required
+              :disabled="!registrationData.country || loadingStates"
+              class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              :class="{ 'border-red-500': errors.regionState }"
+              @change="onStateChange"
+            >
+              <option value="">
+                {{ loadingStates ? 'Loading states...' : 'Select a state/region' }}
+              </option>
+              <option
+                v-for="state in states"
+                :key="state.name"
+                :value="state.name"
+              >
+                {{ state.name }}
+              </option>
+            </select>
+            <div v-if="loadingStates" class="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+            </div>
+          </div>
+          <p v-if="errors.regionState" class="text-red-500 text-sm mt-1">{{ errors.regionState }}</p>
+        </div>
+
+        <div>
+          <label for="townCity" class="block text-sm font-medium text-gray-900 mb-1">
+            Town/City *
+          </label>
+          <div class="relative">
+            <select
+              id="townCity"
+              v-model="registrationData.townCity"
+              required
+              :disabled="!registrationData.regionState || loadingCities"
+              class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              :class="{ 'border-red-500': errors.townCity }"
+            >
+              <option value="">
+                {{ loadingCities ? 'Loading cities...' : 'Select a city' }}
+              </option>
+              <option
+                v-for="city in cities"
+                :key="city"
+                :value="city"
+              >
+                {{ city }}
+              </option>
+            </select>
+            <div v-if="loadingCities" class="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+            </div>
+          </div>
+          <p v-if="errors.townCity" class="text-red-500 text-sm mt-1">{{ errors.townCity }}</p>
+          <p v-if="citiesSource" class="text-xs text-gray-500 mt-1">
+            {{ citiesSource }}
+          </p>
+        </div>
       </div>
 
       <!-- Year Established -->
@@ -98,25 +139,26 @@
         </label>
         <input
           id="yearEstablished"
-          v-model.number="formData.yearEstablished"
+          v-model.number="registrationData.yearEstablished"
           type="number"
-          :min="1800"
-          :max="new Date().getFullYear()"
           required
+          min="1800"
+          :max="new Date().getFullYear()"
+          placeholder="e.g. 2010"
           class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           :class="{ 'border-red-500': errors.yearEstablished }"
         />
         <p v-if="errors.yearEstablished" class="text-red-500 text-sm mt-1">{{ errors.yearEstablished }}</p>
       </div>
 
-      <!-- Website -->
+      <!-- Website (optional) -->
       <div>
         <label for="website" class="block text-sm font-medium text-gray-900 mb-1">
           Website
         </label>
         <input
           id="website"
-          v-model="formData.website"
+          v-model="registrationData.website"
           type="url"
           placeholder="https://www.example.com"
           class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -206,68 +248,102 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import type { RegistrationData } from '../Registration.vue'
-
-interface Props {
-  modelValue: RegistrationData
-  loading: boolean
-  countries: Array<{ name: string; official: string }>
-}
+import { ref, computed, watch } from 'vue'
+import { useRegistrationStore } from '@/stores/registration'
 
 interface Emits {
-  (e: 'next', data: typeof formData): void
+  (e: 'next'): void
   (e: 'prev'): void
 }
 
-const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const store = useRegistrationStore()
 
-const formData = reactive({
-  companyName: props.modelValue.companyName,
-  addressLine: props.modelValue.addressLine,
-  townCity: props.modelValue.townCity,
-  regionState: props.modelValue.regionState,
-  country: props.modelValue.country,
-  yearEstablished: props.modelValue.yearEstablished,
-  website: props.modelValue.website,
-  companyBrochure: props.modelValue.companyBrochure,
-})
+// Computed properties from store
+const registrationData = computed(() => store.registrationData)
+const countries = computed(() => store.countries)
+const cities = computed(() => store.cities)
+const states = computed(() => store.states)
+const citiesSource = computed(() => store.citiesSource)
+const loadingCities = computed(() => store.loadingCities)
+const loadingStates = computed(() => store.loadingStates)
+const loading = computed(() => store.loading)
 
+// Local reactive state
 const errors = ref<Record<string, string>>({})
 const fileInput = ref<HTMLInputElement>()
-const selectedFile = ref<File | null>(props.modelValue.companyBrochure)
+const selectedFile = ref<File | null>(registrationData.value.companyBrochure)
+
+// Watch for file changes in store
+watch(() => registrationData.value.companyBrochure, (newFile) => {
+  selectedFile.value = newFile
+})
+
+// Watch for country changes to fetch states
+watch(() => registrationData.value.country, (newCountry) => {
+  if (newCountry) {
+    // Clear dependent fields
+    store.updateCompanyData({ 
+      regionState: '', 
+      townCity: '' 
+    })
+    // Fetch states for the new country
+    store.fetchStates(newCountry)
+  }
+})
+
+// Watch for state changes to fetch cities
+watch(() => registrationData.value.regionState, (newState) => {
+  if (newState && registrationData.value.country) {
+    // Clear dependent fields
+    store.updateCompanyData({ townCity: '' })
+    // Fetch cities for the new state
+    store.fetchCitiesByState(registrationData.value.country, newState)
+  }
+})
+
+const onCountryChange = () => {
+  if (registrationData.value.country) {
+    store.fetchStates(registrationData.value.country)
+  }
+}
+
+const onStateChange = () => {
+  if (registrationData.value.regionState && registrationData.value.country) {
+    store.fetchCitiesByState(registrationData.value.country, registrationData.value.regionState)
+  }
+}
 
 const validateForm = () => {
   errors.value = {}
 
-  if (!formData.companyName.trim()) {
+  if (!registrationData.value.companyName.trim()) {
     errors.value.companyName = 'Company name is required'
   }
 
-  if (!formData.addressLine.trim()) {
+  if (!registrationData.value.addressLine.trim()) {
     errors.value.addressLine = 'Address is required'
   }
 
-  if (!formData.townCity.trim()) {
+  if (!registrationData.value.townCity.trim()) {
     errors.value.townCity = 'Town/City is required'
   }
 
-  if (!formData.regionState.trim()) {
+  if (!registrationData.value.regionState.trim()) {
     errors.value.regionState = 'Region/State is required'
   }
 
-  if (!formData.country) {
+  if (!registrationData.value.country) {
     errors.value.country = 'Please select a country'
   }
 
-  if (!formData.yearEstablished) {
+  if (!registrationData.value.yearEstablished) {
     errors.value.yearEstablished = 'Year established is required'
-  } else if (formData.yearEstablished < 1800 || formData.yearEstablished > new Date().getFullYear()) {
+  } else if (registrationData.value.yearEstablished < 1800 || registrationData.value.yearEstablished > new Date().getFullYear()) {
     errors.value.yearEstablished = 'Please enter a valid year'
   }
 
-  if (formData.website && !/^https?:\/\/.+/.test(formData.website)) {
+  if (registrationData.value.website && !/^https?:\/\/.+/.test(registrationData.value.website)) {
     errors.value.website = 'Please enter a valid website URL'
   }
 
@@ -295,14 +371,14 @@ const handleFileChange = (event: Event) => {
     }
     
     selectedFile.value = file
-    formData.companyBrochure = file
+    store.updateCompanyData({ companyBrochure: file })
     delete errors.value.companyBrochure
   }
 }
 
 const removeFile = () => {
   selectedFile.value = null
-  formData.companyBrochure = null
+  store.updateCompanyData({ companyBrochure: null })
   if (fileInput.value) {
     fileInput.value.value = ''
   }
@@ -313,10 +389,6 @@ const handleSubmit = async () => {
     return
   }
 
-  emit('next', formData)
+  emit('next')
 }
 </script>
-
-<style scoped>
-/* Additional custom styles if needed */
-</style>

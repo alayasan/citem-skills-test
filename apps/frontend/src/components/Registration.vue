@@ -38,26 +38,19 @@
           <!-- Step 1: Account Information -->
           <AccountInformation
             v-if="currentStep === 1"
-            v-model="registrationData"
-            :loading="loading"
-            @next="handleUserRegistration"
+            @next="nextStep"
           />
           
           <!-- Step 2: Company Information -->
           <CompanyInformation
             v-if="currentStep === 2"
-            v-model="registrationData"
-            :loading="loading"
-            :countries="countries"
-            @next="handleCompanyRegistration"
+            @next="nextStep"
             @prev="prevStep"
           />
           
           <!-- Step 3: Registration Summary -->
           <RegistrationSummary
             v-if="currentStep === 3"
-            :data="registrationData"
-            :loading="loading"
             @prev="prevStep"
             @submit="handleSubmit"
           />
@@ -68,168 +61,49 @@
     <!-- Success Modal -->
     <RegistrationSuccess 
       v-if="isSubmitted"
-      :data="registrationData"
       @close="resetRegistration"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useRegistrationStore } from '@/stores/registration'
 import AccountInformation from './registration/AccountInformation.vue'
 import CompanyInformation from './registration/CompanyInformation.vue'
 import RegistrationSummary from './registration/RegistrationSummary.vue'
 import RegistrationSuccess from './registration/RegistrationSuccess.vue'
 
-export interface RegistrationData {
-  // Step 1: Account Information
-  firstName: string
-  lastName: string
-  email: string
-  username: string
-  password: string
-  passwordConfirmation: string
-  participationType: 'Buyer' | 'Seller' | 'Exhibitor' | 'Visitor' | ''
-  
-  // Step 2: Company Information
-  companyName: string
-  addressLine: string
-  townCity: string
-  regionState: string
-  country: string
-  yearEstablished: number | ''
-  website: string
-  companyBrochure: File | null
-}
+const store = useRegistrationStore()
 
-const initialData: RegistrationData = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  username: '',
-  password: '',
-  passwordConfirmation: '',
-  participationType: '',
-  companyName: '',
-  addressLine: '',
-  townCity: '',
-  regionState: '',
-  country: '',
-  yearEstablished: '',
-  website: '',
-  companyBrochure: null,
-}
-
-// Reactive state
-const currentStep = ref(1)
-const registrationData = ref<RegistrationData>({ ...initialData })
-const isSubmitted = ref(false)
-const loading = ref(false)
-const countries = ref<Array<{ name: string; official: string }>>([])
-
-// Computed
-const progressValue = computed(() => {
-  return (currentStep.value / 3) * 100
-})
+// Computed properties from store
+const currentStep = computed(() => store.currentStep)
+const progressValue = computed(() => store.progressValue)
+const isSubmitted = computed(() => store.isSubmitted)
 
 // Methods
 const nextStep = () => {
-  if (currentStep.value < 3) {
-    currentStep.value++
-  }
+  store.nextStep()
 }
 
 const prevStep = () => {
-  if (currentStep.value > 1) {
-    currentStep.value--
-  }
+  store.prevStep()
 }
 
-const fetchCountries = async () => {
-  try {
-    const response = await fetch('http://localhost:8001/api/countries')
-    const result = await response.json()
-    if (result.success) {
-      countries.value = result.data
-    }
-  } catch (error) {
-    console.error('Failed to fetch countries:', error)
-  }
-}
-
-// Comprehensive registration submission (follows requirements for single API call)
 const handleSubmit = async () => {
-  loading.value = true
-  try {
-    // Create FormData to handle file upload
-    const formData = new FormData()
-    
-    // Add all user data
-    formData.append('first_name', registrationData.value.firstName)
-    formData.append('last_name', registrationData.value.lastName)
-    formData.append('email', registrationData.value.email)
-    formData.append('username', registrationData.value.username)
-    formData.append('password', registrationData.value.password)
-    formData.append('password_confirmation', registrationData.value.passwordConfirmation)
-    formData.append('participation_type', registrationData.value.participationType)
-    
-    // Add all company data
-    formData.append('company_name', registrationData.value.companyName)
-    formData.append('address_line', registrationData.value.addressLine)
-    formData.append('town_city', registrationData.value.townCity)
-    formData.append('region_state', registrationData.value.regionState)
-    formData.append('country', registrationData.value.country)
-    formData.append('year_established', registrationData.value.yearEstablished?.toString() || '')
-    formData.append('website', registrationData.value.website || '')
-    
-    // Add brochure file if present
-    if (registrationData.value.companyBrochure) {
-      formData.append('brochure', registrationData.value.companyBrochure)
-    }
-
-    // Single comprehensive API call as per requirements
-    const response = await fetch('http://localhost:8001/api/register', {
-      method: 'POST',
-      body: formData
-    })
-
-    const result = await response.json()
-    if (result.success) {
-      isSubmitted.value = true
-    } else {
-      throw new Error(result.message || 'Registration failed')
-    }
-  } catch (error) {
-    console.error('Registration failed:', error)
-    alert('Registration failed. Please try again.')
-  } finally {
-    loading.value = false
+  const success = await store.submitRegistration()
+  if (!success) {
+    // Error handled in store
   }
 }
 
 const resetRegistration = () => {
-  currentStep.value = 1
-  registrationData.value = { ...initialData }
-  isSubmitted.value = false
-}
-
-// Handle step 1 completion (client-side validation only)
-const handleUserRegistration = async (userData: any) => {
-  // Store data and proceed to next step (no server call until final submission)
-  Object.assign(registrationData.value, userData)
-  nextStep()
-}
-
-// Handle step 2 completion (client-side validation only)
-const handleCompanyRegistration = async (companyData: any) => {
-  // Store data and proceed to next step (no server call until final submission)
-  Object.assign(registrationData.value, companyData)
-  nextStep()
+  store.resetRegistration()
 }
 
 // Lifecycle
 onMounted(() => {
-  fetchCountries()
+  store.fetchCountries()
 })
 </script>
 

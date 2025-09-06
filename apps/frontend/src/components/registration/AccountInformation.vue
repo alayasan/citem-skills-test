@@ -14,7 +14,7 @@
           </label>
           <input
             id="firstName"
-            v-model="formData.firstName"
+            v-model="store.registrationData.firstName"
             type="text"
             required
             class="input-field"
@@ -29,7 +29,7 @@
           </label>
           <input
             id="lastName"
-            v-model="formData.lastName"
+            v-model="store.registrationData.lastName"
             type="text"
             required
             class="input-field"
@@ -46,7 +46,7 @@
         </label>
         <input
           id="email"
-          v-model="formData.email"
+          v-model="store.registrationData.email"
           type="email"
           required
           class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -62,7 +62,7 @@
         </label>
         <input
           id="username"
-          v-model="formData.username"
+          v-model="store.registrationData.username"
           type="text"
           required
           class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -79,7 +79,7 @@
         <div class="relative">
           <input
             id="password"
-            v-model="formData.password"
+            v-model="store.registrationData.password"
             :type="showPassword ? 'text' : 'password'"
             required
             minlength="8"
@@ -112,7 +112,7 @@
         <div class="relative">
           <input
             id="passwordConfirmation"
-            v-model="formData.passwordConfirmation"
+            v-model="store.registrationData.passwordConfirmation"
             :type="showConfirmPassword ? 'text' : 'password'"
             required
             class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 pr-10 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -143,7 +143,7 @@
         </label>
         <select
           id="participationType"
-          v-model="formData.participationType"
+          v-model="store.registrationData.participationType"
           required
           class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           :class="{ 'border-red-500': errors.participationType }"
@@ -172,31 +172,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import type { RegistrationData } from '../Registration.vue'
-
-interface Props {
-  modelValue: RegistrationData
-  loading: boolean
-}
+import { ref, computed } from 'vue'
+import { useRegistrationStore } from '@/stores/registration'
 
 interface Emits {
-  (e: 'next', data: typeof formData): void
+  (e: 'next'): void
 }
 
-const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const store = useRegistrationStore()
 
-const formData = reactive({
-  firstName: props.modelValue.firstName,
-  lastName: props.modelValue.lastName,
-  email: props.modelValue.email,
-  username: props.modelValue.username,
-  password: props.modelValue.password,
-  passwordConfirmation: props.modelValue.passwordConfirmation,
-  participationType: props.modelValue.participationType,
-})
+// Computed properties from store
+const registrationData = computed(() => store.registrationData)
+const loading = computed(() => store.loading)
 
+// Local reactive state
 const errors = ref<Record<string, string>>({})
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -204,39 +194,39 @@ const showConfirmPassword = ref(false)
 const validateForm = () => {
   errors.value = {}
 
-  if (!formData.firstName.trim()) {
+  if (!registrationData.value.firstName.trim()) {
     errors.value.firstName = 'First name is required'
   }
 
-  if (!formData.lastName.trim()) {
+  if (!registrationData.value.lastName.trim()) {
     errors.value.lastName = 'Last name is required'
   }
 
-  if (!formData.email.trim()) {
+  if (!registrationData.value.email.trim()) {
     errors.value.email = 'Email is required'
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registrationData.value.email)) {
     errors.value.email = 'Please enter a valid email address'
   }
 
-  if (!formData.username.trim()) {
+  if (!registrationData.value.username.trim()) {
     errors.value.username = 'Username is required'
-  } else if (formData.username.length < 3) {
+  } else if (registrationData.value.username.length < 3) {
     errors.value.username = 'Username must be at least 3 characters'
   }
 
-  if (!formData.password) {
+  if (!registrationData.value.password) {
     errors.value.password = 'Password is required'
-  } else if (formData.password.length < 8) {
+  } else if (registrationData.value.password.length < 8) {
     errors.value.password = 'Password must be at least 8 characters'
   }
 
-  if (!formData.passwordConfirmation) {
+  if (!registrationData.value.passwordConfirmation) {
     errors.value.passwordConfirmation = 'Password confirmation is required'
-  } else if (formData.password !== formData.passwordConfirmation) {
+  } else if (registrationData.value.password !== registrationData.value.passwordConfirmation) {
     errors.value.passwordConfirmation = 'Passwords do not match'
   }
 
-  if (!formData.participationType) {
+  if (!registrationData.value.participationType) {
     errors.value.participationType = 'Please select a participation type'
   }
 
@@ -248,7 +238,7 @@ const handleSubmit = async () => {
     return
   }
 
-  emit('next', formData)
+  emit('next')
 }
 </script>
 

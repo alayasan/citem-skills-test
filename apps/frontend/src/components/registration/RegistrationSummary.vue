@@ -161,21 +161,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { RegistrationData } from '../Registration.vue'
-
-interface Props {
-  data: RegistrationData
-  loading: boolean
-}
+import { ref, computed } from 'vue'
+import { useRegistrationStore } from '@/stores/registration'
 
 interface Emits {
   (e: 'prev'): void
   (e: 'submit'): void
 }
 
-const { data, loading } = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const store = useRegistrationStore()
+
+// Computed properties from store
+const data = computed(() => store.registrationData)
+const loading = computed(() => store.loading)
 
 const termsAccepted = ref(false)
 

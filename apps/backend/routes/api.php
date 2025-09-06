@@ -22,5 +22,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Comprehensive registration endpoint (as per requirements)
 Route::post('/register', [RegistrationController::class, 'register']);
 
-// Countries API endpoint
+// Countries API endpoints
 Route::get('/countries', [RegistrationController::class, 'getCountries']);
+Route::get('/countries/{country}/cities', [RegistrationController::class, 'getCities']);
+Route::get('/countries/{country}/states', [RegistrationController::class, 'getStates']);
+Route::get('/countries/{country}/states/{state}/cities', [RegistrationController::class, 'getCitiesByState']);
