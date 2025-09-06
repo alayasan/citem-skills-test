@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+.turbo/
+.vscode
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Laravel specific
+apps/backend/storage/*.key
+apps/backend/storage/app/*
+!apps/backend/storage/app/.gitignore
+apps/backend/storage/framework/cache/*
+!apps/backend/storage/framework/cache/.gitignore
+apps/backend/storage/framework/sessions/*
+!apps/backend/storage/framework/sessions/.gitignore
+apps/backend/storage/framework/views/*
+!apps/backend/storage/framework/views/.gitignore
+apps/backend/storage/logs/*
+!apps/backend/storage/logs/.gitignore
+apps/backend/bootstrap/cache/*
+!apps/backend/bootstrap/cache/.gitignore
+
+# Vue/Vite specific
+apps/frontend/dist/
+apps/frontend/.temp/
+apps/frontend/.cache/
+
+# Database
+*.sqlite
+*.sqlite3
+apps/backend/database/*.sqlite*
+
+# Package manager
+.pnpm-store/
+.yarn/
+
+# AI Assistant instructions (wildcard pattern)
+.github/*instructions*

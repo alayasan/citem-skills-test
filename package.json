@@ -1,0 +1,20 @@
+{
+  "name": "citem-skills-test",
+  "version": "1.0.0",
+  "description": "Turborepo with Vite + Vue frontend and Laravel backend",
+  "private": true,
+  "packageManager": "pnpm@10.15.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.6"
+  }
+}
