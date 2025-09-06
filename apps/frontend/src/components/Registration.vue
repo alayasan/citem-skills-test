@@ -126,7 +126,6 @@ const registrationData = ref<RegistrationData>({ ...initialData })
 const isSubmitted = ref(false)
 const loading = ref(false)
 const countries = ref<Array<{ name: string; official: string }>>([])
-const userId = ref<number | null>(null)
 
 // Computed
 const progressValue = computed(() => {
@@ -158,23 +157,40 @@ const fetchCountries = async () => {
   }
 }
 
+// Comprehensive registration submission (follows requirements for single API call)
 const handleSubmit = async () => {
-  if (!userId.value) {
-    console.error('No user ID found')
-    return
-  }
-
   loading.value = true
   try {
-    // Step 3: Complete registration
-    const response = await fetch('http://localhost:8001/api/registration/complete', {
+    // Create FormData to handle file upload
+    const formData = new FormData()
+    
+    // Add all user data
+    formData.append('first_name', registrationData.value.firstName)
+    formData.append('last_name', registrationData.value.lastName)
+    formData.append('email', registrationData.value.email)
+    formData.append('username', registrationData.value.username)
+    formData.append('password', registrationData.value.password)
+    formData.append('password_confirmation', registrationData.value.passwordConfirmation)
+    formData.append('participation_type', registrationData.value.participationType)
+    
+    // Add all company data
+    formData.append('company_name', registrationData.value.companyName)
+    formData.append('address_line', registrationData.value.addressLine)
+    formData.append('town_city', registrationData.value.townCity)
+    formData.append('region_state', registrationData.value.regionState)
+    formData.append('country', registrationData.value.country)
+    formData.append('year_established', registrationData.value.yearEstablished?.toString() || '')
+    formData.append('website', registrationData.value.website || '')
+    
+    // Add brochure file if present
+    if (registrationData.value.companyBrochure) {
+      formData.append('brochure', registrationData.value.companyBrochure)
+    }
+
+    // Single comprehensive API call as per requirements
+    const response = await fetch('http://localhost:8001/api/register', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id: userId.value
-      })
+      body: formData
     })
 
     const result = await response.json()
@@ -184,7 +200,7 @@ const handleSubmit = async () => {
       throw new Error(result.message || 'Registration failed')
     }
   } catch (error) {
-    console.error('Registration completion failed:', error)
+    console.error('Registration failed:', error)
     alert('Registration failed. Please try again.')
   } finally {
     loading.value = false
@@ -195,86 +211,20 @@ const resetRegistration = () => {
   currentStep.value = 1
   registrationData.value = { ...initialData }
   isSubmitted.value = false
-  userId.value = null
 }
 
-// Handle step 1 completion (user registration)
+// Handle step 1 completion (client-side validation only)
 const handleUserRegistration = async (userData: any) => {
-  loading.value = true
-  try {
-    const response = await fetch('http://localhost:8001/api/registration/user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        first_name: userData.firstName,
-        last_name: userData.lastName,
-        email: userData.email,
-        username: userData.username,
-        password: userData.password,
-        password_confirmation: userData.passwordConfirmation,
-        participation_type: userData.participationType,
-      })
-    })
-
-    const result = await response.json()
-    if (result.success) {
-      userId.value = result.user_id
-      Object.assign(registrationData.value, userData)
-      nextStep()
-    } else {
-      throw new Error(result.message || 'User registration failed')
-    }
-  } catch (error) {
-    console.error('User registration failed:', error)
-    alert('Registration failed. Please try again.')
-  } finally {
-    loading.value = false
-  }
+  // Store data and proceed to next step (no server call until final submission)
+  Object.assign(registrationData.value, userData)
+  nextStep()
 }
 
-// Handle step 2 completion (company registration)
+// Handle step 2 completion (client-side validation only)
 const handleCompanyRegistration = async (companyData: any) => {
-  if (!userId.value) {
-    console.error('No user ID found')
-    return
-  }
-
-  loading.value = true
-  try {
-    const formData = new FormData()
-    formData.append('user_id', userId.value.toString())
-    formData.append('company_name', companyData.companyName || '')
-    formData.append('address_line', companyData.addressLine || '')
-    formData.append('town_city', companyData.townCity || '')
-    formData.append('region_state', companyData.regionState || '')
-    formData.append('country', companyData.country || '')
-    formData.append('year_established', companyData.yearEstablished?.toString() || '')
-    formData.append('website', companyData.website || '')
-    
-    if (companyData.companyBrochure) {
-      formData.append('brochure', companyData.companyBrochure)
-    }
-
-    const response = await fetch('http://localhost:8001/api/registration/company', {
-      method: 'POST',
-      body: formData
-    })
-
-    const result = await response.json()
-    if (result.success) {
-      Object.assign(registrationData.value, companyData)
-      nextStep()
-    } else {
-      throw new Error(result.message || 'Company registration failed')
-    }
-  } catch (error) {
-    console.error('Company registration failed:', error)
-    alert('Company registration failed. Please try again.')
-  } finally {
-    loading.value = false
-  }
+  // Store data and proceed to next step (no server call until final submission)
+  Object.assign(registrationData.value, companyData)
+  nextStep()
 }
 
 // Lifecycle

@@ -19,12 +19,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
   return $request->user();
 });
 
-// Registration API endpoints
-Route::prefix('registration')->group(function () {
-  Route::post('/user', [RegistrationController::class, 'registerUser']);
-  Route::post('/company', [RegistrationController::class, 'registerCompany']);
-  Route::post('/complete', [RegistrationController::class, 'completeRegistration']);
-});
+// Comprehensive registration endpoint (as per requirements)
+Route::post('/register', [RegistrationController::class, 'register']);
 
 // Countries API endpoint
 Route::get('/countries', [RegistrationController::class, 'getCountries']);
