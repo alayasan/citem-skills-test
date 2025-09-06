@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('first_name')->after('id');
             $table->string('last_name')->after('first_name');
             $table->string('username')->unique()->after('email');
-            $table->enum('type_of_participation', ['Buyer', 'Exhibitor', 'Visitor'])->after('username');
+            $table->enum('participation_type', ['Buyer', 'Exhibitor', 'Visitor'])->after('username');
         });
     }
 
@@ -25,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['first_name', 'last_name', 'username', 'type_of_participation']);
+            $table->dropColumn(['first_name', 'last_name', 'username', 'participation_type']);
         });
     }
 };
