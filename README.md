@@ -1,6 +1,29 @@
-# CITEM Skills Test - Turborepo Monorepo
+# CITEM Skills Test - Manila FAME Registration System
 
-A full-stack application built with Turborepo, featuring a Vue.js frontend and Laravel backend with SQLite database.
+A full-stack multi-step registration system built with Turborepo, featuring a Vue.js frontend and Laravel backend with MySQL database. This application enables users to register for Manila FAME 2025 through a comprehensive 3-step process.
+
+## Features
+
+### Frontend (Vue.js)
+- **Multi-step Registration Form**: 3-step process with progress tracking
+- **Responsive Design**: Mobile-first approach with Tailwind CSS styling
+- **Form Validation**: Client-side validation with real-time feedback
+- **File Upload**: PDF brochure upload with validation
+- **Country Selection**: Dynamic country dropdown from API
+- **Success Confirmation**: Registration completion with downloadable confirmation
+
+### Backend (Laravel)
+- **RESTful API**: Complete registration API endpoints
+- **Database Models**: User and Company models with relationships
+- **Form Validation**: Server-side validation with custom request classes
+- **File Storage**: Secure file upload handling for brochures
+- **Countries API**: Third-party integration with fallback data
+- **Error Handling**: Comprehensive error responses
+
+### Registration Flow
+1. **Step 1 - Account Information**: Name, email, username, password, participation type
+2. **Step 2 - Company Information**: Company details, address, website, brochure upload
+3. **Step 3 - Summary & Submission**: Review and complete registration
 
 ## Project Structure
 
@@ -8,8 +31,31 @@ A full-stack application built with Turborepo, featuring a Vue.js frontend and L
 citem-skills-test/
 ├── apps/
 │   ├── frontend/          # Vue.js + Vite frontend
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   │   ├── registration/     # Registration components
+│   │   │   │   │   ├── AccountInformation.vue
+│   │   │   │   │   ├── CompanyInformation.vue
+│   │   │   │   │   ├── RegistrationSummary.vue
+│   │   │   │   │   └── RegistrationSuccess.vue
+│   │   │   │   ├── HeroSection.vue
+│   │   │   │   ├── WhyVisitSection.vue
+│   │   │   │   └── Registration.vue
+│   │   │   ├── App.vue
+│   │   │   └── main.ts
 │   └── backend/           # Laravel API backend
-├── packages/              # Shared packages (if needed)
+│       ├── app/
+│       │   ├── Http/
+│       │   │   ├── Controllers/Api/
+│       │   │   │   └── RegistrationController.php
+│       │   │   └── Requests/
+│       │   │       ├── UserRegistrationRequest.php
+│       │   │       └── CompanyRegistrationRequest.php
+│       │   └── Models/
+│       │       ├── User.php
+│       │       └── Company.php
+│       ├── database/migrations/
+│       └── routes/api.php
 ├── .github/
 ├── package.json           # Root package.json with workspaces
 ├── pnpm-workspace.yaml    # pnpm workspace configuration
@@ -20,10 +66,30 @@ citem-skills-test/
 ## Tech Stack
 
 - **Monorepo**: Turborepo with pnpm workspaces
-- **Frontend**: Vue.js 3 + TypeScript + Vite + Sass
+- **Frontend**: Vue.js 3 + TypeScript + Vite + Sass + Tailwind CSS
 - **Backend**: Laravel 12 + PHP 8.4
 - **Database**: MySQL 8.0+
 - **Package Manager**: pnpm
+- **Icons**: Lucide Vue
+- **Fonts**: Futura with fallbacks
+
+## API Endpoints
+
+### Registration API
+- `POST /api/registration/user` - Register new user (Step 1)
+- `POST /api/registration/company` - Register company info (Step 2)
+- `POST /api/registration/complete` - Complete registration (Step 3)
+- `GET /api/countries` - Get countries list
+
+### Response Format
+```json
+{
+  "success": true,
+  "message": "Registration successful",
+  "data": { ... },
+  "user_id": 123
+}
+```
 
 ## Quick Start
 

@@ -19,14 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
   return $request->user();
 });
 
-Route::get('/hello', function () {
-  return response()->json([
-    'message' => 'Hello from Laravel API!',
-    'timestamp' => now()->toISOString(),
-    'database' => 'MySQL'
-  ]);
-});
-
 // Registration API endpoints
 Route::prefix('registration')->group(function () {
   Route::post('/user', [RegistrationController::class, 'registerUser']);
