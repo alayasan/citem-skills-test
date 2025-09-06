@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\RegistrationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,16 @@ Route::get('/hello', function () {
   return response()->json([
     'message' => 'Hello from Laravel API!',
     'timestamp' => now()->toISOString(),
-    'database' => 'SQLite'
+    'database' => 'MySQL'
   ]);
 });
+
+// Registration API endpoints
+Route::prefix('registration')->group(function () {
+  Route::post('/user', [RegistrationController::class, 'registerUser']);
+  Route::post('/company', [RegistrationController::class, 'registerCompany']);
+  Route::post('/complete', [RegistrationController::class, 'completeRegistration']);
+});
+
+// Countries API endpoint
+Route::get('/countries', [RegistrationController::class, 'getCountries']);
